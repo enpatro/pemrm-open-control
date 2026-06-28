@@ -1,0 +1,1 @@
+Replace these files in GitHub root. Do not overwrite firebase-config.js if it has real Firebase values. Then Ctrl+Shift+R.
