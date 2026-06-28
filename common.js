@@ -15,45 +15,113 @@ function trend(cur, prev){ if(!isNum(cur)||!isNum(prev)) return ''; cur=Number(c
 function download(name,html,type){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000)}
 function excel(name,title,html){download(name,`<html><head><meta charset='utf-8'></head><body><h2>${title}</h2>${html}</body></html>`,'application/vnd.ms-excel')}
 
-// PowerPoint export fix: creates Office-compatible HTML PPT file.
-// Open in Microsoft PowerPoint desktop. If PowerPoint shows a warning, click Yes/Open.
-function ppt(name,title,html){
-  const cleanName = name.toLowerCase().endsWith('.ppt') ? name : name.replace(/\.[^.]+$/,'') + '.ppt';
-  const pptHtml = `<!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office"
-      xmlns:p="urn:schemas-microsoft-com:office:powerpoint"
-      xmlns="http://www.w3.org/TR/REC-html40">
-<head>
-<meta charset="utf-8">
-<meta name="ProgId" content="PowerPoint.Slide">
-<meta name="Generator" content="PE-3F Dashboard">
-<style>
-@page { size: 13.333in 7.5in; margin: 0.25in; }
-body { font-family: Arial, sans-serif; color:#111; }
-.slide { page-break-after: always; width: 12.8in; min-height: 7.0in; padding: 10px; box-sizing: border-box; }
-h1 { color:#0b5cab; font-size: 24pt; margin: 0 0 10px 0; }
-h2,h3 { color:#0b5cab; margin: 8px 0; }
-table { border-collapse: collapse; width: 100%; table-layout: auto; }
-th,td { border: 1px solid #666; padding: 4px; font-size: 8pt; text-align:center; vertical-align: middle; }
-th { background:#0b5cab; color:white; font-weight:bold; }
-.param { text-align:left; min-width:180px; }
-.area { font-weight:bold; }
-.okcell { background:#d1e7dd; color:#0f5132; font-weight:bold; }
-.redcell { background:#f8d7da; color:#842029; font-weight:bold; }
-.blankcell { background:#fff; color:#333; }
-.month-current,.month-current-cell { background:#003b7a !important; color:white !important; }
-.section-title td, .section-title { background:#ddebf7 !important; color:#003b7a !important; font-weight:bold; text-align:left; }
-.single-line-status { white-space: nowrap; }
-.red-note { color:#842029; font-size:7pt; display:block; }
-</style>
-</head>
-<body>
-<div class="slide">
-<h1>${title}</h1>
-${html}
-</div>
-</body>
-</html>`;
-  download(cleanName, pptHtml, 'application/vnd.ms-powerpoint;charset=utf-8');
+// REAL PPTX EXPORT - creates .pptx, not HTML .ppt
+async function loadPptxGen(){
+  if(window.pptxgen) return true;
+  return new Promise((resolve,reject)=>{
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';
+    s.onload=()=>resolve(true);
+    s.onerror=()=>reject(new Error('PptxGenJS library not loaded. Internet/CDN blocked.'));
+    document.head.appendChild(s);
+  });
+}
+function tableToMatrix(table){
+  const rows=[];
+  if(!table) return rows;
+  table.querySelectorAll('tr').forEach(tr=>{
+    const row=[];
+    tr.querySelectorAll('th,td').forEach(cell=>{
+      let text=(cell.innerText||cell.textContent||'').replace(/\s+/g,' ').trim();
+      row.push(text);
+    });
+    if(row.length) rows.push(row);
+  });
+  return rows;
+}
+function chunkRows(rows, chunkSize){
+  const chunks=[];
+  for(let i=0;i<rows.length;i+=chunkSize) chunks.push(rows.slice(i,i+chunkSize));
+  return chunks;
+}
+async function ppt(name,title,html){
+  try{
+    setMsg('Preparing PPTX...','status');
+    await loadPptxGen();
+    const pptx = new pptxgen();
+    pptx.layout = 'LAYOUT_WIDE';
+    pptx.author = 'PE-3F Dashboard';
+    pptx.subject = title;
+    pptx.title = title;
+    pptx.company = 'PE-3F';
+    pptx.lang = 'en-US';
+    pptx.theme = {
+      headFontFace: 'Arial',
+      bodyFontFace: 'Arial',
+      lang: 'en-US'
+    };
+
+    const temp=document.createElement('div');
+    temp.innerHTML=html;
+    const tables=[...temp.querySelectorAll('table')];
+    if(!tables.length){
+      const currentTable=document.querySelector('table');
+      if(currentTable) tables.push(currentTable.cloneNode(true));
+    }
+    if(!tables.length) throw new Error('No table found for PPT export');
+
+    // Title slide
+    let slide=pptx.addSlide();
+    slide.background = { color: 'F3F6FB' };
+    slide.addText(title || 'PE-3F Dashboard', {x:0.4,y:0.35,w:12.5,h:0.5,fontFace:'Arial',fontSize:24,bold:true,color:'0B5CAB'});
+    slide.addText('Auto generated dashboard export', {x:0.4,y:0.92,w:12.2,h:0.3,fontSize:11,color:'444444'});
+    slide.addText(new Date().toLocaleString(), {x:0.4,y:1.25,w:12.2,h:0.3,fontSize:10,color:'666666'});
+
+    let slideNo=1;
+    for(const table of tables){
+      const rows=tableToMatrix(table);
+      if(!rows.length) continue;
+      const header=rows[0];
+      const body=rows.slice(1);
+      const chunks=chunkRows(body, 16); // readable director review slides
+      for(const chunk of chunks){
+        slideNo++;
+        let sld=pptx.addSlide();
+        sld.background = { color: 'FFFFFF' };
+        sld.addText(title || 'PE-3F Dashboard', {x:0.25,y:0.15,w:12.8,h:0.3,fontFace:'Arial',fontSize:15,bold:true,color:'0B5CAB'});
+        const tableData=[header,...chunk];
+        const colCount=Math.max(...tableData.map(r=>r.length));
+        const colW=[];
+        for(let c=0;c<colCount;c++){
+          if(c===0) colW.push(0.75);
+          else if(c===1) colW.push(2.25);
+          else colW.push(Math.max(0.65, Math.min(1.05, 9.6/(colCount-2 || 1))));
+        }
+        sld.addTable(tableData, {
+          x:0.15, y:0.55, w:13.0, h:6.55,
+          border:{type:'solid', color:'999999', pt:0.5},
+          margin:0.03,
+          fontFace:'Arial',
+          fontSize: colCount>10 ? 6.1 : 7.2,
+          color:'111111',
+          valign:'mid',
+          align:'center',
+          fit:'shrink',
+          colW: colW,
+          rowH: tableData.map((_,i)=> i===0 ? 0.32 : 0.34),
+          fill:'FFFFFF',
+          autoFit:false
+        });
+        // header overlay styles are limited in addTable; add small slide footer
+        sld.addText(`Page ${slideNo-1}`, {x:12.2,y:7.15,w:0.8,h:0.2,fontSize:7,color:'777777'});
+      }
+    }
+    const outName = (name || 'PE_3F_Dashboard.pptx').replace(/\.ppt$/i,'.pptx').replace(/\.html$/i,'.pptx');
+    await pptx.writeFile({ fileName: outName.toLowerCase().endsWith('.pptx') ? outName : outName + '.pptx' });
+    setMsg('PPTX downloaded. Open the .pptx file in PowerPoint.','ok');
+  }catch(e){
+    setMsg('PPTX export error: '+e.message,'bad');
+    console.error(e);
+  }
 }
 window.addEventListener('DOMContentLoaded', initFirebase);
