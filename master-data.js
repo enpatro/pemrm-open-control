@@ -188,192 +188,224 @@ export const ABS_PARAMS=[
     "section": "Manpower",
     "param": "Total Associates",
     "key": "totalAssoc",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Manpower",
     "param": "JE+ Associates",
     "key": "jeAssoc",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Manpower",
     "param": "LA + CC Associates",
     "key": "laAssoc",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Manpower",
     "param": "Casual Associates",
     "key": "casAssoc",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Absenteeism",
     "param": "Overall Actual Leaves",
     "key": "overallLeaves",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Absenteeism",
     "param": "Overall Working Days",
     "key": "overallWorkingDays",
-    "type": "number"
+    "type": "number",
+    "calc": "avg"
   },
   {
     "section": "Absenteeism",
     "param": "Overall Absenteeism %",
     "key": "overallAbsPct",
-    "type": "number"
+    "type": "number",
+    "calc": "avg"
   },
   {
     "section": "Absenteeism",
     "param": "JE+ Actual Leaves",
     "key": "jeLeaves",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Absenteeism",
     "param": "JE+ Working Days",
     "key": "jeWorkingDays",
-    "type": "number"
+    "type": "number",
+    "calc": "avg"
   },
   {
     "section": "Absenteeism",
     "param": "JE+ Absenteeism %",
     "key": "jeAbsPct",
-    "type": "number"
+    "type": "number",
+    "calc": "avg"
   },
   {
     "section": "Absenteeism",
     "param": "LA Actual Leaves",
     "key": "laLeaves",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Absenteeism",
     "param": "LA Working Days",
     "key": "laWorkingDays",
-    "type": "number"
+    "type": "number",
+    "calc": "avg"
   },
   {
     "section": "Absenteeism",
     "param": "LA Absenteeism %",
     "key": "laAbsPct",
-    "type": "number"
+    "type": "number",
+    "calc": "avg"
   },
   {
     "section": "Absenteeism",
     "param": "Casual Actual Leaves",
     "key": "casLeaves",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Absenteeism",
     "param": "Casual Working Days",
     "key": "casWorkingDays",
-    "type": "number"
+    "type": "number",
+    "calc": "avg"
   },
   {
     "section": "Absenteeism",
     "param": "Casual Absenteeism %",
     "key": "casAbsPct",
-    "type": "number"
+    "type": "number",
+    "calc": "avg"
   },
   {
     "section": "Absenteeism",
     "param": "Habitual Absenteeism Nos.",
     "key": "habitualNos",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Overtime",
     "param": "Overall Total OT Hrs",
     "key": "overallOtHrs",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Overtime",
     "param": "Overall No. of Associates",
     "key": "overallOtAssoc",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Overtime",
     "param": "Overall OT Hrs / Person",
     "key": "overallOtPer",
-    "type": "number"
+    "type": "number",
+    "calc": "avg"
   },
   {
     "section": "Overtime",
     "param": "JE+ Total OT Hrs",
     "key": "jeOtHrs",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Overtime",
     "param": "JE+ No. of Associates",
     "key": "jeOtAssoc",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Overtime",
     "param": "JE+ OT Hrs / Person",
     "key": "jeOtPer",
-    "type": "number"
+    "type": "number",
+    "calc": "avg"
   },
   {
     "section": "Overtime",
     "param": "LA Total OT Hrs",
     "key": "laOtHrs",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Overtime",
     "param": "LA No. of Associates",
     "key": "laOtAssoc",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Overtime",
     "param": "LA OT Hrs / Person",
     "key": "laOtPer",
-    "type": "number"
+    "type": "number",
+    "calc": "avg"
   },
   {
     "section": "Overtime",
     "param": "Casual Total OT Hrs",
     "key": "casOtHrs",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Overtime",
     "param": "Casual No. of Associates",
     "key": "casOtAssoc",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Overtime",
     "param": "Casual OT Hrs / Person",
     "key": "casOtPer",
-    "type": "number"
+    "type": "number",
+    "calc": "avg"
   },
   {
     "section": "Overtime",
     "param": ">16 Hrs Overtime Nos.",
     "key": "otAbove16",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Overtime",
     "param": ">10 Day Continuous Working Nos.",
     "key": "continuousAbove10",
-    "type": "number"
+    "type": "number",
+    "calc": "sum"
   },
   {
     "section": "Remarks",
     "param": "Remarks",
     "key": "remarks",
-    "type": "text"
+    "type": "text",
+    "calc": "text"
   }
 ];
