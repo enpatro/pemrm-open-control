@@ -12,7 +12,48 @@ function n(x){let v=Number(x); return Number.isFinite(v)?v:0}function isNum(x){r
 function parseTarget(t){ if(t===''||t==null||t===undefined) return null; let s=String(t).trim(); let op='='; if(s.startsWith('<=')){op='<=';s=s.slice(2)} else if(s.startsWith('>=')){op='>=';s=s.slice(2)} else if(s.startsWith('<')){op='<';s=s.slice(1)} else if(s.startsWith('>')){op='>';s=s.slice(1)} s=s.replace('%',''); let v=Number(s); if(!Number.isFinite(v)) return null; return {op,v}; }
 function judge(value,target){ if(!isNum(value)) return {cell:'blankcell', ok:true, symbol:'', band:'blank'}; let t=parseTarget(target); if(!t) return {cell:'blankcell', ok:true, symbol:'', band:'info'}; let v=Number(value), ok=true, ratio=null; if(t.op==='<') {ok=v<t.v; ratio=t.v? v/t.v: null;} else if(t.op==='<=') {ok=v<=t.v; ratio=t.v? v/t.v: null;} else if(t.op==='>') {ok=v>t.v; ratio=t.v? v/t.v: null;} else if(t.op==='>=') {ok=v>=t.v; ratio=t.v? v/t.v: null;} else {ratio=t.v===0? (v===0?1:999) : v/t.v; ok=(t.v===0? v===0 : (ratio>=0.8 && ratio<=1.2));} let symbol='○'; if(ratio!==null){ if(ratio>=0.8 && ratio<=1.2) symbol='○'; else if(ratio<0.8) symbol='▲'; else symbol='■'; } if(t.v===0 && v!==0) symbol='■'; return {cell:ok?'okcell':'redcell', ok, symbol, band:ok?'ok':'ng'}; }
 function trend(cur, prev){ if(!isNum(cur)||!isNum(prev)) return ''; cur=Number(cur); prev=Number(prev); if(cur>prev)return '↗'; if(cur<prev)return '↘'; return '→'; }
-function download(name,html,type){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type}));a.download=name;a.click()}
+function download(name,html,type){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000)}
 function excel(name,title,html){download(name,`<html><head><meta charset='utf-8'></head><body><h2>${title}</h2>${html}</body></html>`,'application/vnd.ms-excel')}
-function ppt(name,title,html){download(name,`<html><head><meta charset='utf-8'></head><body><h1>${title}</h1>${html}</body></html>`,'application/vnd.ms-powerpoint')}
+
+// PowerPoint export fix: creates Office-compatible HTML PPT file.
+// Open in Microsoft PowerPoint desktop. If PowerPoint shows a warning, click Yes/Open.
+function ppt(name,title,html){
+  const cleanName = name.toLowerCase().endsWith('.ppt') ? name : name.replace(/\.[^.]+$/,'') + '.ppt';
+  const pptHtml = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:p="urn:schemas-microsoft-com:office:powerpoint"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<meta name="ProgId" content="PowerPoint.Slide">
+<meta name="Generator" content="PE-3F Dashboard">
+<style>
+@page { size: 13.333in 7.5in; margin: 0.25in; }
+body { font-family: Arial, sans-serif; color:#111; }
+.slide { page-break-after: always; width: 12.8in; min-height: 7.0in; padding: 10px; box-sizing: border-box; }
+h1 { color:#0b5cab; font-size: 24pt; margin: 0 0 10px 0; }
+h2,h3 { color:#0b5cab; margin: 8px 0; }
+table { border-collapse: collapse; width: 100%; table-layout: auto; }
+th,td { border: 1px solid #666; padding: 4px; font-size: 8pt; text-align:center; vertical-align: middle; }
+th { background:#0b5cab; color:white; font-weight:bold; }
+.param { text-align:left; min-width:180px; }
+.area { font-weight:bold; }
+.okcell { background:#d1e7dd; color:#0f5132; font-weight:bold; }
+.redcell { background:#f8d7da; color:#842029; font-weight:bold; }
+.blankcell { background:#fff; color:#333; }
+.month-current,.month-current-cell { background:#003b7a !important; color:white !important; }
+.section-title td, .section-title { background:#ddebf7 !important; color:#003b7a !important; font-weight:bold; text-align:left; }
+.single-line-status { white-space: nowrap; }
+.red-note { color:#842029; font-size:7pt; display:block; }
+</style>
+</head>
+<body>
+<div class="slide">
+<h1>${title}</h1>
+${html}
+</div>
+</body>
+</html>`;
+  download(cleanName, pptHtml, 'application/vnd.ms-powerpoint;charset=utf-8');
+}
 window.addEventListener('DOMContentLoaded', initFirebase);
