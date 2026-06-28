@@ -1,4 +1,4 @@
-// Paste your real Firebase Web App config here. Keep export const line.
+// Replace with your Firebase Web App config. If Firebase is not working, app still saves in browser localStorage.
 export const firebaseConfig = {
   apiKey: "PASTE_REAL_FIREBASE_API_KEY",
   authDomain: "PASTE_PROJECT_ID.firebaseapp.com",

@@ -1,8 +1,9 @@
-# PE-3F KPI Direct Content App - No Login
+# PE-3F KPI + Abs & OT Direct App - Offline Safe
 
-Open index.html directly. No login page.
+No login. KPI, Abs & OT entry, dashboard, Excel download and PPT download included.
 
-IMPORTANT Firebase rule required because no authentication is used:
+## Firebase rule for no-login mode
+Firestore Database > Rules:
 
 rules_version = '2';
 service cloud.firestore {
@@ -13,6 +14,9 @@ service cloud.firestore {
   }
 }
 
-This is only for internal testing. Later admin/user control can be added.
-
-Also update firebase-config.js with exact Firebase Web App config.
+## Important
+1. Replace firebase-config.js with exact config from Firebase Web App.
+2. If Firebase gives 'client is offline', this app still saves to browser localStorage.
+3. For multi-user live data, Firebase config and Firestore rules must be correct.
+4. Excel download is .xls format and opens in Excel.
+5. PPT download is .ppt HTML format and opens in PowerPoint.
