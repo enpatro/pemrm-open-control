@@ -1,5 +1,4 @@
-// IMPORTANT: Replace this full object with Firebase Console > Project settings > General > Your apps > Web app config
-// Keep first line exactly: export const firebaseConfig = {
+// Paste your real Firebase Web App config here. Keep export const line.
 export const firebaseConfig = {
   apiKey: "PASTE_REAL_FIREBASE_API_KEY",
   authDomain: "PASTE_PROJECT_ID.firebaseapp.com",

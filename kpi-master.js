@@ -85,14 +85,7 @@ export const KPI_MASTER = [
   },
   {
     "area": "Q",
-    "parameter": "Model Line BD % → FAC A",
-    "target102": "0",
-    "monthTarget": "0",
-    "freq": "Monthly"
-  },
-  {
-    "area": "Q",
-    "parameter": "Model Line BD % → FAC B",
+    "parameter": "Zero BD machine",
     "target102": "0",
     "monthTarget": "0",
     "freq": "Monthly"

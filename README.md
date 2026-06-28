@@ -1,16 +1,18 @@
-# PEMRM1 Internal Only KPI App
+# PE-3F KPI Direct Content App - No Login
 
-No admin page. No role control. All authenticated users can update internal KPI data.
+Open index.html directly. No login page.
 
-Required Firebase Firestore rule for internal testing:
+IMPORTANT Firebase rule required because no authentication is used:
 
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if true;
     }
   }
 }
 
-Important: Update firebase-config.js with exact Web App config from Firebase Console.
+This is only for internal testing. Later admin/user control can be added.
+
+Also update firebase-config.js with exact Firebase Web App config.
