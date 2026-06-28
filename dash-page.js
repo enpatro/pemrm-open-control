@@ -2,7 +2,43 @@
 const kd=document.getElementById('kpiDashTable'), ad=document.getElementById('absDashTable'), cards=document.getElementById('summaryCards');
 function divVal(data,m,p){let vals=DEPTS.map(d=>Number((data[`${m}_${d}`]||{})[p[2]])).filter(Number.isFinite);if(!vals.length)return'';let s=vals.reduce((a,b)=>a+b,0);return p[3]==='avg'?s/vals.length:s}
 function relatedRemark(data,m,p){if(!parseTarget(p[4]))return'';let out=[];for(const d of DEPTS){let doc=data[`${m}_${d}`]||{},v=doc[p[2]],j=judge(v,p[4]);if(j.ok===false){out.push(`${d}${doc.remarks?': '+doc.remarks:''}`)}}return out.join(' | ')}
-async function loadDash(){let k={},a={};try{setMsg('Loading...');if(firebaseReady){k=await allDocs('kpis');a=await allDocs('absot')}}catch(e){setMsg('Firebase load error: '+e.message,'bad')}cards.innerHTML=`<div class='summary-card'><b>Current:</b> ${cm()}</div><div class='summary-card'><b>Judgt:</b> ○ within 80–120%, ▲ below 80%, ■ above 120%</div><div class='summary-card'><b>Trend:</b> ↗ up, ↘ down, → same vs previous month</div>`;
-let kh='<tr><th>Area</th><th>Parameter</th><th>Target</th>'+MONTHS.map(m=>`<th class='${monthClass(m)}'>${m}</th>`).join('')+'</tr>';for(const x of KPI_MASTER){kh+=`<tr><td class='area'>${x[0]}</td><td class='param'>${x[1]}</td><td>${x[2]}</td>`;for(let i=0;i<MONTHS.length;i++){let m=MONTHS[i],pm=MONTHS[i-1],r=k[`${m}_${safeId(x[0]+'_'+x[1])}`]||{},pr=pm?(k[`${pm}_${safeId(x[0]+'_'+x[1])}`]||{}):{};let j=judge(r.actual,x[2]);let ar=trend(r.actual,pr.actual);kh+=`<td class='${tdClass(m)} ${j.cell}'><b>${fmt(r.actual)}</b><br><span class='symbol'>${j.symbol}</span> <span class='arrow'>${ar}</span></td>`}kh+='</tr>'}kd.innerHTML=kh;
-let ah='<tr><th>Section</th><th>Parameter</th><th>Target</th>'+MONTHS.map(m=>`<th class='${monthClass(m)}'>${m}</th>`).join('')+'</tr>';let last='';for(const p of ABS_CALC){if(p[0]!==last){ah+=`<tr class='section-title'><td colspan='${MONTHS.length+3}'>${p[0]}</td></tr>`;last=p[0]}ah+=`<tr><td>${p[0]}</td><td class='param'>${p[1]}</td><td>${p[4]!==''?p[4]:'-'}</td>`;for(let i=0;i<MONTHS.length;i++){let m=MONTHS[i],pm=MONTHS[i-1],v=divVal(a,m,p),pv=pm?divVal(a,pm,p):'',j=judge(v,p[4]),ar=trend(v,pv),rem=(j.ok===false)?relatedRemark(a,m,p):'';ah+=`<td class='${tdClass(m)} ${j.cell}'><b>${fmt(v)}</b><br>${j.symbol?`<span class='symbol'>${j.symbol}</span>`:''} <span class='arrow'>${ar}</span>${rem?`<span class='red-note'>${rem}</span>`:''}</td>`}ah+='</tr>'}ad.innerHTML=ah;setMsg('Dashboard loaded','ok')}
+function oneLine(value,symbol,arrow){
+  const v = fmt(value);
+  const sym = symbol || '';
+  const ar = arrow || '';
+  return `<span class='single-line-status'><b>${v}</b> <span class='symbol-inline'>${sym}</span> <span class='arrow-inline'>${ar}</span></span>`;
+}
+async function loadDash(){
+  let k={},a={};
+  try{
+    setMsg('Loading...');
+    if(firebaseReady){k=await allDocs('kpis');a=await allDocs('absot')}
+  }catch(e){setMsg('Firebase load error: '+e.message,'bad')}
+  cards.innerHTML=`<div class='summary-card'><b>Current:</b> ${cm()}</div><div class='summary-card'><b>Format:</b> Value ○ ↗ in single line</div><div class='summary-card'><b>Judgt:</b> ○ within 80–120%, ▲ below 80%, ■ above 120%</div><div class='summary-card'><b>Trend:</b> ↗ up, ↘ down, → same vs previous month</div>`;
+  let kh='<tr><th>Area</th><th>Parameter</th><th>Target</th>'+MONTHS.map(m=>`<th class='${monthClass(m)}'>${m}</th>`).join('')+'</tr>';
+  for(const x of KPI_MASTER){
+    kh+=`<tr><td class='area'>${x[0]}</td><td class='param'>${x[1]}</td><td>${x[2]}</td>`;
+    for(let i=0;i<MONTHS.length;i++){
+      let m=MONTHS[i],pm=MONTHS[i-1],r=k[`${m}_${safeId(x[0]+'_'+x[1])}`]||{},pr=pm?(k[`${pm}_${safeId(x[0]+'_'+x[1])}`]||{}):{};
+      let j=judge(r.actual,x[2]);
+      let ar=trend(r.actual,pr.actual);
+      kh+=`<td class='${tdClass(m)} ${j.cell}'>${oneLine(r.actual,j.symbol,ar)}</td>`;
+    }
+    kh+='</tr>';
+  }
+  kd.innerHTML=kh;
+  let ah='<tr><th>Section</th><th>Parameter</th><th>Target</th>'+MONTHS.map(m=>`<th class='${monthClass(m)}'>${m}</th>`).join('')+'</tr>';
+  let last='';
+  for(const p of ABS_CALC){
+    if(p[0]!==last){ah+=`<tr class='section-title'><td colspan='${MONTHS.length+3}'>${p[0]}</td></tr>`;last=p[0]}
+    ah+=`<tr><td>${p[0]}</td><td class='param'>${p[1]}</td><td>${p[4]!==''?p[4]:'-'}</td>`;
+    for(let i=0;i<MONTHS.length;i++){
+      let m=MONTHS[i],pm=MONTHS[i-1],v=divVal(a,m,p),pv=pm?divVal(a,pm,p):'',j=judge(v,p[4]),ar=trend(v,pv),rem=(j.ok===false)?relatedRemark(a,m,p):'';
+      ah+=`<td class='${tdClass(m)} ${j.cell}'>${oneLine(v,j.symbol,ar)}${rem?`<span class='red-note'>${rem}</span>`:''}</td>`;
+    }
+    ah+='</tr>';
+  }
+  ad.innerHTML=ah;
+  setMsg('Dashboard loaded','ok')
+}
 setTimeout(loadDash,700);
