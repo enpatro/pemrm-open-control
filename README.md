@@ -1,8 +1,7 @@
-Director Review Clean Dashboard
-- Dashboard no longer shows RED text or wrong department remarks inside main cells.
-- Wrong department details are moved to wrong-dept.html.
-- Overall Absenteeism target is <6%.
-- OT per person target is <6 hrs.
-- >16 Hrs OT Nos and >10 Day Continuous Working Nos target is 0.
-- KPI color coding now uses target logic: <, >, 0, or ±20% where exact numeric target is used.
-- Upload all files to GitHub root and paste real Firebase config in firebase-config.js.
+Auto Judgt + Trend + Related Remark Publish
+- Dashboard auto shows Judgt symbol: ○ within 80–120%, ▲ below 80%, ■ above 120%.
+- Dashboard auto shows Trend: ↗ if higher than previous month, ↘ if lower, → if same.
+- Abs & OT red cells show only related department remark in the same cell.
+- Wrong department full detail remains in wrong-dept.html.
+- Main dashboard is director-clean: no RED text, only color + symbols + related remarks.
+- Paste real Firebase config in firebase-config.js using const firebaseConfig, not export.
