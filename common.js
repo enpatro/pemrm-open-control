@@ -1,10 +1,12 @@
 import { firebaseConfig } from './firebase-config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs, serverTimestamp, enableNetwork } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-const MONTHS=['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];let app,db;
-const configOk=firebaseConfig&&firebaseConfig.apiKey&&!String(firebaseConfig.apiKey).includes('PASTE_')&&firebaseConfig.projectId&&!String(firebaseConfig.projectId).includes('PASTE_');
-try{app=initializeApp(firebaseConfig);db=getFirestore(app);enableNetwork(db).catch(()=>{})}catch(e){console.error(e)}
-function curMonth(){return new Date().toLocaleString('en-US',{month:'short'})}function fillMonths(s){s.innerHTML=MONTHS.map(m=>`<option>${m}</option>`).join('');s.value=curMonth()}function setStatus(t,c='status'){let m=document.getElementById('msg');if(m){m.className=c;m.textContent=t}}
-function req(){if(!configOk||!db)throw new Error('Firebase config is not set correctly. Update firebase-config.js')}async function saveDocFB(c,id,d){req();await setDoc(doc(db,c,id),{...d,updatedAt:serverTimestamp()},{merge:true})}async function getDocFB(c,id){req();let s=await getDoc(doc(db,c,id));return s.exists()?s.data():null}async function getAllDocsFB(c){req();let out={};(await getDocs(collection(db,c))).forEach(x=>out[x.id]=x.data());return out}
-function dl(n,c,t){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:t}));a.download=n;a.click()}function tableToExcel(n,t,h){dl(n,`<html><meta charset='utf-8'><body><h2>${t}</h2>${h}</body></html>`,'application/vnd.ms-excel')}function tableToPpt(n,t,h){dl(n,`<html><meta charset='utf-8'><style>table{border-collapse:collapse;width:100%}td,th{border:1px solid #555;padding:5px;font-size:11px}.status-red{background:#f8d7da!important}.status-ok{background:#d1e7dd!important}.month-current{background:#003b7a!important;color:white!important}</style><body><h1>${t}</h1>${h}</body></html>`,'application/vnd.ms-powerpoint')}
-export{MONTHS,curMonth,fillMonths,setStatus,saveDocFB,getDocFB,getAllDocsFB,tableToExcel,tableToPpt,configOk};
+import { getFirestore, collection, getDocs, enableNetwork } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+const MONTHS=['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];let db=null;
+const configOk=firebaseConfig&&firebaseConfig.apiKey&&!String(firebaseConfig.apiKey).includes('PASTE_');
+try{const app=initializeApp(firebaseConfig);db=getFirestore(app);enableNetwork(db).catch(()=>{});}catch(e){console.warn(e)}
+function curMonth(){return new Date().toLocaleString('en-US',{month:'short'});}function status(t,c='status'){let m=document.getElementById('msg');if(m){m.className=c;m.textContent=t}}
+async function allDocs(col){if(!configOk||!db) return {}; const out={}; const qs=await getDocs(collection(db,col)); qs.forEach(d=>out[d.id]=d.data()); return out;}
+function download(name,html,type){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type}));a.download=name;a.click()}
+function toExcel(name,title,html){download(name,`<html><head><meta charset='utf-8'></head><body><h2>${title}</h2>${html}</body></html>`,'application/vnd.ms-excel')}
+function toPpt(name,title,html){download(name,`<html><head><meta charset='utf-8'></head><body><h1>${title}</h1>${html}</body></html>`,'application/vnd.ms-powerpoint')}
+export{MONTHS,curMonth,status,allDocs,toExcel,toPpt,configOk};

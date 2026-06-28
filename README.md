@@ -1,7 +1,1 @@
-# PE-3F Target Status Dashboard
-
-- Fixed target for each KPI / Abs / OT parameter in master-data.js.
-- ±20% rule: OK green, beyond red.
-- Abs & OT dashboard shows division compiled only.
-- Red division cells include wrong department and combined remarks.
-- Pending report shows department-wise blocks up to current month.
+Upload dashboard.html, dashboard.js, common.js, master-data.js, style.css. Keep your real firebase-config.js. This patch forces dashboard tables to show even if Firebase has no data.
