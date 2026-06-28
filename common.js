@@ -1,17 +1,16 @@
-export const MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
-import { firebaseConfig } from './firebase-config.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs, serverTimestamp, enableNetwork } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-let db=null;
-export const configOk = firebaseConfig && firebaseConfig.apiKey && !String(firebaseConfig.apiKey).includes('PASTE_');
-try{ const app=initializeApp(firebaseConfig); db=getFirestore(app); enableNetwork(db).catch(()=>{}); }catch(e){ console.warn('Firebase init:',e); }
-export function curMonth(){ return new Date().toLocaleString('en-US',{month:'short'}); }
-export function fillMonthDropdown(sel){ if(!sel) return; sel.innerHTML = MONTHS.map(m=>`<option value="${m}">${m}</option>`).join(''); const cm=curMonth(); if(MONTHS.includes(cm)) sel.value=cm; }
-export function setStatus(t,c='status'){ const m=document.getElementById('msg'); if(m){ m.className=c; m.textContent=t; } }
-function req(){ if(!configOk||!db) throw new Error('Firebase config missing/wrong. Paste real config in firebase-config.js'); }
-export async function saveDocFB(col,id,data){ req(); await setDoc(doc(db,col,id),{...data,updatedAt:serverTimestamp()},{merge:true}); }
-export async function getDocFB(col,id){ req(); const s=await getDoc(doc(db,col,id)); return s.exists()?s.data():null; }
-export async function getAllDocsFB(col){ req(); const out={}; const qs=await getDocs(collection(db,col)); qs.forEach(d=>out[d.id]=d.data()); return out; }
-function download(name,content,type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; a.click(); }
-export function toExcel(name,title,html){ download(name,`<html><head><meta charset='utf-8'></head><body><h2>${title}</h2>${html}</body></html>`,'application/vnd.ms-excel'); }
-export function toPpt(name,title,html){ download(name,`<html><head><meta charset='utf-8'></head><body><h1>${title}</h1>${html}</body></html>`,'application/vnd.ms-powerpoint'); }
+
+let db=null; let firebaseReady=false;
+function initFirebase(){try{ if(typeof firebaseConfig==='undefined' || String(firebaseConfig.apiKey||'').includes('PASTE_')){setMsg('Firebase config missing. Tables will show but cloud save/load will not work.','bad');return;} firebase.initializeApp(firebaseConfig); db=firebase.firestore(); firebaseReady=true; setMsg('Firebase ready','ok'); }catch(e){setMsg('Firebase init error: '+e.message,'bad');}}
+function cm(){return new Date().toLocaleString('en-US',{month:'short'});}function monthClass(m){return m===cm()?'month-current':'month-other'}function tdClass(m){return m===cm()?' month-current-cell':''}
+function fillMonths(id){let s=document.getElementById(id); if(!s)return; s.innerHTML=MONTHS.map(m=>`<option value="${m}">${m}</option>`).join(''); if(MONTHS.includes(cm()))s.value=cm();}
+function setMsg(t,c='status'){let m=document.getElementById('msg'); if(m){m.className=c;m.textContent=t;}}
+function safeId(s){return String(s).replace(/[^a-zA-Z0-9]/g,'_')}
+async function saveDoc(col,id,data){if(!firebaseReady)throw new Error('Firebase not ready'); await db.collection(col).doc(id).set({...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}
+async function getDoc(col,id){if(!firebaseReady)return null; let d=await db.collection(col).doc(id).get(); return d.exists?d.data():null;}
+async function allDocs(col){if(!firebaseReady)return {}; let out={}; let q=await db.collection(col).get(); q.forEach(d=>out[d.id]=d.data()); return out;}
+function n(x){let v=Number(x); return Number.isFinite(v)?v:0}function isNum(x){return x!==''&&x!=null&&Number.isFinite(Number(x))}function fmt(x){if(x===''||x==null)return'';let v=Number(x);return Number.isFinite(v)?Math.round(v*100)/100:x}function pct(leaves,days,assoc){return days&&assoc?(leaves/(days*assoc))*100:''}function per(hrs,assoc){return assoc?hrs/assoc:''}
+function status(v,t){if(!isNum(v)||!isNum(t))return['',''];v=Number(v);t=Number(t);if(t===0)return v===0?['OK','okcell']:['RED','redcell'];return(v>=t*.8&&v<=t*1.2)?['OK','okcell']:['RED','redcell']}
+function download(name,html,type){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type}));a.download=name;a.click()}
+function excel(name,title,html){download(name,`<html><head><meta charset='utf-8'></head><body><h2>${title}</h2>${html}</body></html>`,'application/vnd.ms-excel')}
+function ppt(name,title,html){download(name,`<html><head><meta charset='utf-8'></head><body><h1>${title}</h1>${html}</body></html>`,'application/vnd.ms-powerpoint')}
+window.addEventListener('DOMContentLoaded', initFirebase);
