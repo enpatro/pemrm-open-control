@@ -1,0 +1,9 @@
+<!doctype html><html><head><meta charset='utf-8'><title>Department PPT Upload</title><link rel='stylesheet' href='style.css'>
+<script src='https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js'></script>
+<script src='https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js'></script>
+<script src='https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js'></script>
+<script src='firebase-config.js'></script><script src='app-data.js'></script><script src='common.js'></script></head>
+<body><header><h1>Department PPT Upload</h1><nav><a href='dashboard.html'>Dashboard</a><a href='department-ppt.html'>Dept PPT Upload</a><a href='compiled-report.html'>Compiled MMR PPT</a><a href='index.html'>KPI Entry</a><a href='abs-ot-entry.html'>Abs & OT Entry</a></nav></header>
+<section class='topbar'><label>Month</label><select id='monthSelect'></select><span class='hint'>Upload max 10 MB PPT/PPTX for each department</span><span id='msg' class='status'></span></section>
+<section class='panel'><div class='tablewrap'><table id='uploadTable'></table></div></section>
+<script src='department-ppt.js'></script></body></html>
